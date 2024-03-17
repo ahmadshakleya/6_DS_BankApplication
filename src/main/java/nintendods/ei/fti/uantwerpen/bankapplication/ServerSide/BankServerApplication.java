@@ -12,6 +12,6 @@ public class BankServerApplication {
     public static void main(String[] args) throws UnknownHostException {
         SpringApplication.run(BankServerApplication.class, args);
         InetAddress ip = InetAddress.getLocalHost();
-        System.out.println("Server IP address: " + ip.getHostAddress());
+        System.out.println("Please connect to server IP address: " + ip.getHostAddress() + " at port 8080");
     }
 }
