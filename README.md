@@ -1,6 +1,7 @@
 # Bank Application Server-Side
 
 This is a simple banking application developed in Java using Spring Boot for the server-side.
+The client-side can be found at: [GitHub Repository](https://github.com/ahmadshakleya/BankClientApplication)
 
 ## Deployment
 
