@@ -3,6 +3,10 @@ package nintendods.ei.fti.uantwerpen.bankapplication;
 import nintendods.ei.fti.uantwerpen.bankapplication.ServerSide.BankAccount;
 import org.junit.jupiter.api.Test;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 public class BankAccountTests {
@@ -60,5 +64,43 @@ public class BankAccountTests {
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> sourceAccount.transferTo(destinationAccount, -50));
         assertEquals("Amount must be positive", exception.getMessage());
+    }
+
+    @Test
+    public void testConcurrentOperationsOnJointAccount() throws InterruptedException {
+        // Create a joint account
+        BankAccount jointAccount = new BankAccount("Joint Account", "123456789", 1000);
+
+        // Create two threads, each representing a family member accessing the joint account
+        ExecutorService executorService = Executors.newFixedThreadPool(2);
+
+        // Define a shared runnable task for deposit and withdrawal operations
+        Runnable task = () -> {
+            for (int i = 0; i < 100; i++) {
+                try {
+                    // Simulate deposit operation
+                    jointAccount.addMoney(10);
+                    Thread.sleep(10); // Simulate some processing time
+
+                    // Simulate withdrawal operation
+                    jointAccount.removeMoney(5);
+                    Thread.sleep(10); // Simulate some processing time
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+
+        // Submit the tasks to the executor service
+        executorService.submit(task);
+        executorService.submit(task);
+
+        // Shutdown the executor service
+        executorService.shutdown();
+        executorService.awaitTermination(1, TimeUnit.MINUTES);
+
+        // After concurrent operations, check the final balance
+        int expectedBalance = 1000 + (2 * 100 * 10) - (2 * 100 * 5); // Initial balance + (100 deposits - 100 withdrawals)
+        assertEquals(expectedBalance, jointAccount.getBalance());
     }
 }
